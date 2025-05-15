@@ -1,0 +1,142 @@
+---
+- name: Dynamic exclusion management with `mdatp`
+  hosts: "{{ hosts_group | default('all') }}"
+  become: yes
+  serial: 1
+
+  vars:
+    exclusion_action: "{{ exclusion_action | default(omit) }}"
+
+  tasks:
+    - name: List exclusions
+      block:
+        - name: List exclusions
+          command: mdatp exclusion list
+          register: exclusions
+          changed_when: false
+
+        - name: Display current exclusions
+          debug:
+            msg: "{{ exclusions.stdout_lines }}"
+      when: exclusion_action == '1'
+
+    - name: Ask for the type of exclusion to add
+      pause:
+        prompt: |
+          Host : [ "{{ inventory_hostname }}" ]
+          Choose the type of exclusion to add :
+          1 | Directory (e.g., `/home/*/git`)
+          2 | File (e.g., `/var/log/system.log`)
+          3 | File extension (e.g., `.txt`)
+          4 | Process (e.g., `/bin/cat`)
+          Enter the number corresponding to your choice...
+      register: exclusion_type_input
+      when: exclusion_action != '1'
+
+    - name: Validate the type of exclusion
+      fail:
+        msg: "⚠ Invalid input. Please enter a number between 1 and 4. ⚠ "
+      when:
+        - exclusion_action != '1'
+        - exclusion_type_input.user_input not in ['1', '2', '3', '4']
+
+    - name: Set the type of exclusion
+      set_fact:
+        exclusion_type: "{{ exclusion_type_input.user_input }}"
+      when: exclusion_action != '1'
+
+    - name: Collect details for the exclusion
+      block:
+        - name: Collect details for directory exclusion
+          pause:
+            prompt: |
+              Path of the directory to exclude (e.g., `/home/*/git`)?
+          register: exclusion_details_dir
+          when: exclusion_type == '1'
+
+        - name: Collect details for file exclusion
+          pause:
+            prompt: |
+              Path of the file to exclude (e.g., `/var/log/system.log`)?
+          register: exclusion_details_file
+          when: exclusion_type == '2'
+
+        - name: Collect details for file extension exclusion
+          pause:
+            prompt: |
+              Enter the file extension to exclude (e.g., `.txt`)?
+          register: exclusion_details_ext
+          when: exclusion_type == '3'
+
+        - name: Collect details for process exclusion
+          pause:
+            prompt: |
+              Enter the name of the file to exclude (e.g., `/bin/cat`)?
+          register: exclusion_details_name
+          when: exclusion_type == '4'
+      when: exclusion_action != '1'
+
+    - name: Set the type of exclusion (description)
+      set_fact:
+        exclusion_type_description: >-
+          {% if exclusion_type == '1' %}folder
+          {% elif exclusion_type == '2' %}file
+          {% elif exclusion_type == '3' %}extension
+          {% elif exclusion_type == '4' %}process
+          {% else %}N/A{% endif %}
+      when: exclusion_action != '1'
+
+    - name: Set exclusion details
+      set_fact:
+        exclusion_details: >-
+          {% if exclusion_type == '1' %}{{ exclusion_details_dir.user_input }}
+          {% elif exclusion_type == '2' %}{{ exclusion_details_file.user_input }}
+          {% elif exclusion_type == '3' %}{{ exclusion_details_ext.user_input }}
+          {% elif exclusion_type == '4' %}{{ exclusion_details_name.user_input }}
+          {% else %}N/A{% endif %}
+      when: exclusion_action != '1'
+
+    - name: Clean exclusion data
+      block:
+        - name: Clean exclusion type
+          set_fact:
+            exclusion_type_description: "{{ exclusion_type_description | trim }}"
+
+        - name: Clean exclusion details
+          set_fact:
+            exclusion_details: "{{ exclusion_details | trim }}"
+      when: exclusion_action != '1'
+
+    - name: Display the selected exclusion
+      debug:
+        msg: |
+          You have chosen to exclude:
+          Type: {{ exclusion_type_description }}
+          Details: {{ exclusion_details }}
+          Scope: epp
+      when: exclusion_action != '1'
+
+    - name: Execute action on MDE
+      block:
+        - name: Add exclusion to MDE
+          block:
+            - name: Apply exclusion (Directory/File/Process)
+              command: mdatp exclusion {{ exclusion_type_description }} add --path "{{ exclusion_details }}" --scope "epp"
+              when: exclusion_type_description in ['folder', 'file', 'process']
+
+            - name: Apply exclusion (Extension)
+              command: mdatp exclusion {{ exclusion_type_description }} add --name "{{ exclusion_details }}"
+              when: exclusion_type_description == 'extension'
+          when: exclusion_action == '2'
+
+        - name: Remove exclusion from MDE
+          block:
+            - name: Remove exclusion (Directory/File/Process)
+              command: mdatp exclusion {{ exclusion_type_description }} remove --path "{{ exclusion_details }}" --scope "epp"
+              when: exclusion_type_description in ['folder', 'file', 'process']
+
+            - name: Remove exclusion (Extension)
+              command: mdatp exclusion {{ exclusion_type_description }} remove --name "{{ exclusion_details }}"
+              when: exclusion_type_description == 'extension'
+          when: exclusion_action == '3'
+      when: exclusion_action != '1'
