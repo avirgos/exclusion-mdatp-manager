@@ -35,7 +35,7 @@ Copy the SSH key to the devices where the GLPI agent will be deployed :
 ssh-copy-id -i ~/.ssh/ansible.pub <username-1>@<remote-host-1>
 ```
 
-⚠️ Complete the <username-x> and <remote-host-x> fields. Also, <username-x> must belong to the `sudo` group. ⚠️
+⚠️ Complete the `<username-x>` and `<remote-host-x>` fields. Also, `<username-x>` must belong to the `sudo` group. ⚠️
 
 ## Usage
 
