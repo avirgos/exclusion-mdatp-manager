@@ -6,7 +6,7 @@ Bash script that uses an Ansible playbook to perform antivirus exclusions on MDE
 
 ## Features
 
-For a group defined in `inventory.ini` and used in `exclusion-mdatp-manager.sh` (variable `HOSTS_GROUP`) :
+For a group defined in `inventory.ini` and used in `exclusion-mdatp-manager.sh` (`HOSTS_GROUP` global variable) :
 
 - **Interactive menus**
 - Manage exclusions (list/add/remove) **host by host**
