@@ -4,6 +4,14 @@
 
 Bash script that uses an Ansible playbook to perform antivirus exclusions on MDE (**M**icrosoft **D**efender for **E**ndpoint) by applying them to multiple GNU/Linux machines.
 
+## Features
+
+For a group defined in `inventory.ini` and used in `exclusion-mdatp-manager.sh` (variable `HOSTS_GROUP`) :
+
+- **Interactive menus**
+- Manage exclusions (list/add/remove) **host by host**
+- Add/Remove an exclusion **on all hosts**
+
 ## Prerequisites
 
 The following packages are required :
@@ -21,7 +29,7 @@ The following packages are required :
 
 ⚠️ Complete the `<alias-x>`, `<hostname-x>`, and `<username-x>` fields. ⚠️
 
-## Deployment Preparation
+## Deployment preparation
 
 Create a SSH key `ansible` to allow SSH connections to the devices :
 
@@ -50,9 +58,9 @@ Run the following Bash script :
 In `exclusion-mdatp-manager.sh` Bash script, you can modify these variables if necessary :
 
 ```bash
-# inventory file
+# path to the inventory file
 INVENTORY="inventory.ini"
-# Ansible playbook
+# Ansible playbook to manage `mdatp` exclusions
 PLAYBOOK="exclusion-mdatp.yml"
 # group in the inventory containing managed nodes
 HOSTS_GROUP="servers"

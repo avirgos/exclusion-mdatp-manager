@@ -2,7 +2,6 @@
 - name: Dynamic exclusion management with `mdatp`
   hosts: "{{ hosts_group | default('all') }}"
   become: yes
-  serial: 1
 
   vars:
     exclusion_action: "{{ exclusion_action | default(omit) }}"
@@ -20,30 +19,33 @@
             msg: "{{ exclusions.stdout_lines }}"
       when: exclusion_action == '1'
 
-    - name: Ask for the type of exclusion to add
+    - name: Ask for the type of exclusion to manage
       pause:
         prompt: |
           Host : [ "{{ inventory_hostname }}" ]
-          Choose the type of exclusion to add :
+          Choose the type of exclusion to manage :
           1 | Directory (e.g., `/home/*/git`)
           2 | File (e.g., `/var/log/system.log`)
           3 | File extension (e.g., `.txt`)
           4 | Process (e.g., `/bin/cat`)
           Enter the number corresponding to your choice...
-      register: exclusion_type_input
+      register: exclusion_type_input_pause
+      when:
+        - exclusion_action != '1'
+        - exclusion_type_input is not defined
+
+    - name: Set the type of exclusion
+      set_fact:
+        exclusion_type: >-
+          {{ exclusion_type_input | default(exclusion_type_input_pause.user_input) }}
       when: exclusion_action != '1'
 
     - name: Validate the type of exclusion
       fail:
-        msg: "⚠ Invalid input. Please enter a number between 1 and 4. ⚠ "
+        msg: " ⚠️ Invalid exclusion type number. Please enter a number between 1 and 4. ⚠️ "
       when:
         - exclusion_action != '1'
-        - exclusion_type_input.user_input not in ['1', '2', '3', '4']
-
-    - name: Set the type of exclusion
-      set_fact:
-        exclusion_type: "{{ exclusion_type_input.user_input }}"
-      when: exclusion_action != '1'
+        - exclusion_type not in ['1', '2', '3', '4']
 
     - name: Collect details for the exclusion
       block:
@@ -52,31 +54,39 @@
             prompt: |
               Path of the directory to exclude (e.g., `/home/*/git`)?
           register: exclusion_details_dir
-          when: exclusion_type == '1'
+          when:
+            - exclusion_type == '1'
+            - exclusion_details_input is not defined
 
         - name: Collect details for file exclusion
           pause:
             prompt: |
               Path of the file to exclude (e.g., `/var/log/system.log`)?
           register: exclusion_details_file
-          when: exclusion_type == '2'
+          when:
+            - exclusion_type == '2'
+            - exclusion_details_input is not defined
 
         - name: Collect details for file extension exclusion
           pause:
             prompt: |
               Enter the file extension to exclude (e.g., `.txt`)?
           register: exclusion_details_ext
-          when: exclusion_type == '3'
+          when:
+            - exclusion_type == '3'
+            - exclusion_details_input is not defined
 
         - name: Collect details for process exclusion
           pause:
             prompt: |
-              Enter the name of the file to exclude (e.g., `/bin/cat`)?
+              Enter the name of the process to exclude (e.g., `/bin/cat`)?
           register: exclusion_details_name
-          when: exclusion_type == '4'
+          when:
+            - exclusion_type == '4'
+            - exclusion_details_input is not defined
       when: exclusion_action != '1'
 
-    - name: Set the type of exclusion (description)
+    - name: Set the type of exclusion
       set_fact:
         exclusion_type_description: >-
           {% if exclusion_type == '1' %}folder
@@ -89,10 +99,16 @@
     - name: Set exclusion details
       set_fact:
         exclusion_details: >-
-          {% if exclusion_type == '1' %}{{ exclusion_details_dir.user_input }}
-          {% elif exclusion_type == '2' %}{{ exclusion_details_file.user_input }}
-          {% elif exclusion_type == '3' %}{{ exclusion_details_ext.user_input }}
-          {% elif exclusion_type == '4' %}{{ exclusion_details_name.user_input }}
+          {% if exclusion_details_input is defined %}
+            {{ exclusion_details_input }}
+          {% elif exclusion_type == '1' %}
+            {{ exclusion_details_dir.user_input | default('') }}
+          {% elif exclusion_type == '2' %}
+            {{ exclusion_details_file.user_input | default('') }}
+          {% elif exclusion_type == '3' %}
+            {{ exclusion_details_ext.user_input | default('') }}
+          {% elif exclusion_type == '4' %}
+            {{ exclusion_details_name.user_input | default('') }}
           {% else %}N/A{% endif %}
       when: exclusion_action != '1'
 
@@ -109,11 +125,11 @@
 
     - name: Display the selected exclusion
       debug:
-        msg: |
-          You have chosen to exclude:
-          Type: {{ exclusion_type_description }}
-          Details: {{ exclusion_details }}
-          Scope: epp
+        msg:
+          - "You have chosen to exclude :"
+          - "Type : {{ exclusion_type_description }}"
+          - "Details : {{ exclusion_details }}"
+          - "Scope : epp"
       when: exclusion_action != '1'
 
     - name: Execute action on MDE
