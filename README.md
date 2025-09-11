@@ -11,6 +11,7 @@ Bash script that uses an Ansible playbook to perform antivirus exclusions on MDE
 - **Interactive menus**
 - Manage exclusions (list/add/remove) **host by host**
 - Add/Remove an exclusion **on all hosts**
+- **Log file** created after each execution: `logs/exclusion-mdatp-manager_$(date +'%Y%m%d_%H%M%S').log`
 
 ## Prerequisites
 
