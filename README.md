@@ -14,12 +14,12 @@ Bash script that uses an Ansible playbook to perform antivirus exclusions on MDE
 
 ## Prerequisites
 
-The following packages are required :
+The following packages are required:
 
 - [`ansible`](https://docs.ansible.com/ansible/latest/installation_guide/index.html) installed on *control node*
 - [`mdatp`](https://learn.microsoft.com/fr-fr/defender-endpoint/linux-install-manually) installed on *managed nodes*
 
-`inventory.ini` lists the devices where the exclusions will be done :
+`inventory.ini` lists the devices where the exclusions will be done:
 
 ```ini
 [servers]
@@ -31,13 +31,13 @@ The following packages are required :
 
 ## Deployment preparation
 
-Create a SSH key `ansible` to allow SSH connections to the devices :
+Create a SSH key `ansible` to allow SSH connections to the devices:
 
 ```bash
 ssh-keygen -t ecdsa -b 521 -f ~/.ssh/ansible
 ```
 
-Copy the SSH key to the devices where the GLPI agent will be deployed :
+Copy the SSH key to the devices where the GLPI agent will be deployed:
 
 ```bash
 ssh-copy-id -i ~/.ssh/ansible.pub <username-1>@<remote-host-1>
@@ -47,7 +47,7 @@ ssh-copy-id -i ~/.ssh/ansible.pub <username-1>@<remote-host-1>
 
 ## Usage
 
-Run the following Bash script :
+Run the following Bash script:
 
 ```bash
 ./exclusion-mdatp-manager.sh
@@ -55,7 +55,7 @@ Run the following Bash script :
 
 ## Configuration
 
-In the Bash script `exclusion-mdatp-manager.sh`, you can modify these variables if necessary :
+In the Bash script `exclusion-mdatp-manager.sh`, you can modify these variables if necessary:
 
 ```bash
 # path to the inventory file
@@ -64,4 +64,5 @@ INVENTORY="inventory.ini"
 PLAYBOOK="exclusion-mdatp.yml"
 # group in the inventory containing managed nodes
 HOSTS_GROUP="servers"
+
 ```
