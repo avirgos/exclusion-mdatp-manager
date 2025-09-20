@@ -6,7 +6,8 @@ Bash script that uses an Ansible playbook to perform antivirus exclusions on MDE
 
 ## Features
 
-ℹ️ **For a group defined in `inventory.ini`** and used in the Bash script `exclusion-mdatp-manager.sh` (`HOSTS_GROUP` global variable):
+> **ℹ️ Note**  
+> **For a group defined in `inventory.ini`** and used in the Bash script `exclusion-mdatp-manager.sh` (`HOSTS_GROUP` global variable):
 
 - **Interactive menus**
 - Manage exclusions (list/add/remove) **host by host**
@@ -28,7 +29,8 @@ The following packages are required:
 <alias-2> ansible_host=<hostname-2> ansible_user=<username-2> ansible_ssh_private_key_file=~/.ssh/ansible
 ```
 
-⚠️ Complete the `<alias-x>`, `<hostname-x>`, and `<username-x>` fields. ⚠️
+> **⚠️ Warning**  
+> Complete the `<alias-x>`, `<hostname-x>`, and `<username-x>` fields.
 
 ## Deployment preparation
 
@@ -44,7 +46,8 @@ Copy the SSH key to the devices where the GLPI agent will be deployed:
 ssh-copy-id -i ~/.ssh/ansible.pub <username-1>@<remote-host-1>
 ```
 
-⚠️ Complete the `<username-x>` and `<remote-host-x>` fields. Also, `<username-x>` must belong to the `sudo` group. ⚠️
+> **⚠️ Warning**  
+> Complete the `<username-x>` and `<remote-host-x>` fields. Also, `<username-x>` must belong to the `sudo` group.
 
 ## Usage
 
@@ -66,4 +69,5 @@ PLAYBOOK="exclusion-mdatp.yml"
 # group in the inventory containing managed nodes
 HOSTS_GROUP="servers"
 ```
+
 
