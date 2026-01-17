@@ -62,11 +62,13 @@ Run the following Bash script:
 In the Bash script `exclusion-mdatp-manager.sh`, you can modify these variables if necessary:
 
 ```bash
-# path to the inventory file
+# Path to the inventory file
 INVENTORY="inventory.ini"
+
 # Ansible playbook to manage `mdatp` exclusions
 PLAYBOOK="exclusion-mdatp.yml"
-# group in the inventory containing managed nodes
+
+# Group in the inventory containing managed nodes
 HOSTS_GROUP="servers"
 ```
 

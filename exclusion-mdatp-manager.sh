@@ -9,20 +9,25 @@ set -o nounset  # Exit if variable not set.
 IFS=$'\n\t'     # Remove the initial space and instead use '\n'.
 
 ######################################################################
-# Global variables
+# Global variables (internal)
 ######################################################################
-# path to the inventory file
+# Path to the inventory file
 INVENTORY="inventory.ini"
+
 # Ansible playbook to manage `mdatp` exclusions
 PLAYBOOK="exclusion-mdatp.yml"
-# group in the inventory containing managed nodes
+
+# Group in the inventory containing managed nodes
 HOSTS_GROUP="servers"
-# array to store hostnames
+
+# Array to store hostnames
 HOSTS=()
+
+# Logs
 LOG_DIR="logs"
 LOG_FILE=""${LOG_DIR}"/exclusion-mdatp-manager_$(date +'%Y%m%d_%H%M%S').log"
 
-# create "${LOG_DIR}" if absent
+# Create "${LOG_DIR}" if absent
 mkdir -p "${LOG_DIR}"
 
 ######################################################################
