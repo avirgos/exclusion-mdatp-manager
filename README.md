@@ -49,14 +49,6 @@ ssh-copy-id -i ~/.ssh/ansible.pub <username-1>@<remote-host-1>
 > **⚠️ Warning**  
 > Complete the `<username-x>` and `<remote-host-x>` fields. Also, `<username-x>` must belong to the `sudo` group.
 
-## Usage
-
-Run the following Bash script:
-
-```bash
-./exclusion-mdatp-manager.sh
-```
-
 ## Configuration
 
 In the Bash script `exclusion-mdatp-manager.sh`, you can modify these variables if necessary:
@@ -72,4 +64,10 @@ PLAYBOOK="exclusion-mdatp.yml"
 HOSTS_GROUP="servers"
 ```
 
+## Usage
 
+Run the following Bash script:
+
+```bash
+./exclusion-mdatp-manager.sh
+```
