@@ -14,7 +14,7 @@ IFS=$'\n\t'     # Remove the initial space and instead use '\n'.
 # Path to the inventory file
 INVENTORY="inventory.ini"
 
-# Ansible playbook to manage `mdatp` exclusions
+# Ansible playbook to manage 'mdatp' exclusions
 PLAYBOOK="exclusion-mdatp.yml"
 
 # Group in the inventory containing managed nodes
@@ -27,7 +27,7 @@ HOSTS=()
 LOG_DIR="logs"
 LOG_FILE=""${LOG_DIR}"/exclusion-mdatp-manager_$(date +'%Y%m%d_%H%M%S').log"
 
-# Create "${LOG_DIR}" if absent
+# Create '${LOG_DIR}' if absent
 mkdir -p "${LOG_DIR}"
 
 ######################################################################
@@ -59,10 +59,10 @@ function parse_inventory() {
 
     while IFS= read -r line
     do
-        # ignore blank lines and comments
+        # Ignore blank lines and comments
         [[ -z "${line}" || "${line}" =~ ^# ]] && continue
 
-        # check for the beginning of the target group (`HOSTS_GROUP`)
+        # Check for the beginning of the target group ('HOSTS_GROUP')
         if [[ "${line}" =~ ^\["${HOSTS_GROUP}"\] ]]
         then
             in_group=1
@@ -71,10 +71,10 @@ function parse_inventory() {
 
         if [[ "${in_group}" -eq 1 ]]
         then
-            # stop if another group is encountered
+            # Stop if another group is encountered
             [[ "${line}" =~ ^\[.*\] ]] && break
 
-            # extract hostname and add to `HOSTS` array
+            # Extract hostname and add to 'HOSTS' array
             HOSTS+=("$(echo "${line}" | cut -d' ' -f1)")
         fi
     done < "${INVENTORY}"
@@ -109,9 +109,9 @@ function get_action() {
 
     while true
     do
-        read -p "Enter the number corresponding to your choice... : " action
+        read -p "Enter the number corresponding to your choice: " action
 
-        # validate user input
+        # Validate user input
         if [[ "${action}" =~ ^[1-4]$ ]]
         then
             echo "${action}"
@@ -133,8 +133,8 @@ function show_action_menu() {
     local host="${1}"
     local is_last="${2}"
 
-    echo "Host : ["${host}"]"
-    echo "Choose the action to perform :"
+    echo "Host: ["${host}"]"
+    echo "Choose the action to perform:"
     echo "1 | List exclusions"
     echo "2 | Add an exclusion"
     echo "3 | Remove an exclusion"
@@ -192,7 +192,7 @@ function process_one_by_one_hosts() {
         local host="${HOSTS[$i]}"
         local is_last_host=0
 
-        # check if current host is the last one
+        # Check if current host is the last one
         [[ "${i}" -eq $(("${#HOSTS[@]}" - 1)) ]] && is_last_host=1
 
         while true
@@ -206,11 +206,11 @@ function process_one_by_one_hosts() {
             then
                 if [[ "${is_last_host}" -eq 1 ]]
                 then
-                    log "Returning to the main menu."
-                    echo -e "\n • Returning to the main menu. \n"
+                    log "Returning to the main menu"
+                    echo -e "\n Returning to the main menu \n"
                 else
                     log "Moving to the next host..."
-                    echo -e "\n • Moving to the next host... \n"
+                    echo -e "\n Moving to the next host... \n"
                 fi
                 break
             fi
@@ -233,10 +233,10 @@ function process_one_by_one_hosts() {
 function process_all_hosts() {
     local action="${1}" # 2 = add, 3 = remove
 
-    # ask for the type of exclusion only if action = 2 or 3
+    # Ask for the type of exclusion only if action = 2 or 3
     if [[ "${action}" == "2" || "${action}" == "3" ]]
     then
-        echo "Choose the type of exclusion to manage :"
+        echo "Choose the type of exclusion to manage:"
         echo "1 | Directory (e.g., \`/home/*/git\`)"
         echo "2 | File (e.g., \`/var/log/system.log\`)"
         echo "3 | File extension (e.g., \`.txt\`)"
@@ -245,7 +245,7 @@ function process_all_hosts() {
         local exclusion_type
         while true
         do
-            read -p "Enter the number corresponding to your choice... : " exclusion_type
+            read -p "Enter the number corresponding to your choice: " exclusion_type
 
             if [[ "${exclusion_type}" =~ ^[1-4]$ ]]
             then
@@ -257,28 +257,28 @@ function process_all_hosts() {
             1)
                 while true
                 do
-                    read -p "Path of the directory to exclude (e.g., \`/home/*/git\`) : " exclusion_details
+                    read -p "Path of the directory to exclude (e.g., '/home/*/git'): " exclusion_details
                     [[ -n "${exclusion_details}" ]] && break
                 done
                 ;;
             2)
                 while true
                 do
-                    read -p "Path of the file to exclude (e.g., \`/var/log/system.log\`) : " exclusion_details
+                    read -p "Path of the file to exclude (e.g., '/var/log/system.log'): " exclusion_details
                     [[ -n "${exclusion_details}" ]] && break
                 done
                 ;;
             3)
                 while true
                 do
-                    read -p "File extension to exclude (e.g., \`.txt\`) : " exclusion_details
+                    read -p "File extension to exclude (e.g., '.txt'): " exclusion_details
                     [[ -n "${exclusion_details}" ]] && break
                 done
                 ;;
             4)
                 while true
                 do
-                    read -p "Name of the process to exclude (e.g., \`/bin/cat\`) : " exclusion_details
+                    read -p "Name of the process to exclude (e.g., '/bin/cat'): " exclusion_details
                     [[ -n "${exclusion_details}" ]] && break
                 done
                 ;;
@@ -294,7 +294,7 @@ function process_all_hosts() {
 # Main program
 ######################################################################
 parse_inventory
-log "Start of script execution."
+log "Start of script execution"
 
 while true
 do
@@ -303,21 +303,21 @@ do
 
     case "${main_menu_action}" in
         1)
-            log "Managing exclusions on a per-host basis."
+            log "Managing exclusions on a per-host basis"
             process_one_by_one_hosts
             ;;
         2)
             log "Adding an exclusion on ALL hosts..."
-            echo -e "\n • Adding an exclusion on ALL hosts... \n"
+            echo -e "\n Adding an exclusion on ALL hosts... \n"
             process_all_hosts 2
             ;;
         3)
             log "Removing an exclusion on ALL hosts..."
-            echo -e "\n • Removing an exclusion on ALL hosts... \n"
+            echo -e "\n Removing an exclusion on ALL hosts... \n"
             process_all_hosts 3
             ;;
         4)
-            log "End of script execution."
+            log "End of script execution"
             exit 0
             ;;
     esac

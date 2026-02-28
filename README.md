@@ -57,7 +57,7 @@ In the Bash script `exclusion-mdatp-manager.sh`, you can modify these variables 
 # Path to the inventory file
 INVENTORY="inventory.ini"
 
-# Ansible playbook to manage `mdatp` exclusions
+# Ansible playbook to manage 'mdatp' exclusions
 PLAYBOOK="exclusion-mdatp.yml"
 
 # Group in the inventory containing managed nodes
